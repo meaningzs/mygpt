@@ -1,11 +1,11 @@
-import streamlit as st
-from langchain_core.messages.chat import ChatMessage
-from langchain_openai import ChatOpenAI
-from langchain_core.output_parsers import StrOutputParser
-from langchain_teddynote.prompts import load_prompt
-from dotenv import load_dotenv
 import glob
 import settings
+import streamlit as st
+
+from langchain_core.messages.chat import ChatMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import ChatOpenAI
+from langchain_teddynote.prompts import load_prompt
 
 # API KEY 정보로드
 #load_dotenv()
@@ -22,10 +22,10 @@ else :
     st.write(f'API키 : {st.secrets["openai_api_key"][-5:]}')
 main_text = st.empty()
 
-#api_key = st.text_input("🔑 새로운 OPENAI API Key", type="password")
-#save_btn = st.button("설정 저장", key="save_btn")
+# api_key = st.text_input("🔑 새로운 OPENAI API Key", type="password")
+# save_btn = st.button("설정 저장", key="save_btn")
 
-#if save_btn:
+# if save_btn:
 #    settings.save_config({"api_key": api_key})
 #    st.session_state.api_key = api_key
 #    st.write("설정이 저장되었습니다.")
@@ -41,9 +41,13 @@ with st.sidebar:
     # 초기화 버튼 생성
     clear_btn = st.button("대화 초기화")
 
-    prompt_files = glob.glob("prompts/*.yaml")
-    selected_prompt = st.selectbox("프롬프트를 선택해 주세요", prompt_files, index=0)
-    task_input = st.text_input("TASK 입력", "")
+    # prompt_files = glob.glob("prompts/*.yaml")
+    selected_prompt = st.selectbox(
+        "프롬프트 선택",
+        ["prompts/general.yaml", "prompts/prompt-maker.yaml"],
+        index=0,
+    )
+    task_input = st.text_area("TASK 입력", "")
 
 
 # 이전 대화를 출력

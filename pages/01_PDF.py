@@ -1,20 +1,26 @@
+import os
 import streamlit as st
+import settings
+
 from langchain_core.messages.chat import ChatMessage
-from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
-from langchain_teddynote.prompts import load_prompt
+from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_community.vectorstores import FAISS
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+
+from langchain_teddynote.prompts import load_prompt
 from langchain_teddynote import logging
-from dotenv import load_dotenv
-import os
 
 # API KEY 정보로드
-load_dotenv()
+config = settings.load_config()
+if "api_key" in config:
+    st.session_state.api_key = config["api_key"]
+    st.write(f'사용자 입력 API키 : {st.session_state.api_key[-5:]}')
+else : 
+    st.session_state.api_key = st.secrets["openai_api_key"]
+    st.write(f'API키 : {st.secrets["openai_api_key"][-5:]}')
 
 # 캐시 디렉토리 생성
 if not os.path.exists(".cache"):
@@ -56,7 +62,7 @@ with st.sidebar:
 
     selected_prompt = st.selectbox(
         "프롬프트 선택",
-        ["prompts/pdf-rag.yaml", "prompts/pdf-quiz.yaml"],
+        ["prompts/pdf-rag.yaml", "prompts/pdf-quiz.yaml", "prompts/summary.yaml"],
         index=0,
     )
 
