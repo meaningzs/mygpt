@@ -1,0 +1,5 @@
+secrets.toml
+config.json
+/.cache
+
+/__pycache__
