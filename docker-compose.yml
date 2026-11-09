@@ -1,0 +1,14 @@
+services:
+  mygpt:
+    build: .
+    image: mygpt:latest
+    container_name: mygpt
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8501}:8501"
+    environment:
+      # .env 파일 또는 셸 환경변수로 주입 (커밋 금지)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    # 선택: Google Sheets 등 secrets.toml 이 필요하면 파일을 만든 뒤 주석 해제
+    # volumes:
+    #   - ./.streamlit/secrets.toml:/app/.streamlit/secrets.toml:ro

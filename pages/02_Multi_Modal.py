@@ -9,13 +9,11 @@ from langchain_teddynote.models import MultiModal
 
 
 # API KEY 정보로드
-config = settings.load_config()
-if "api_key" in config:
-    st.session_state.api_key = config["api_key"]
-    st.write(f'사용자 입력 API키 : {st.session_state.api_key[-5:]}')
-else : 
-    st.session_state.api_key = st.secrets["openai_api_key"]
-    st.write(f'API키 : {st.secrets["openai_api_key"][-5:]}')
+st.session_state.api_key = settings.resolve_api_key()
+if st.session_state.api_key:
+    st.write(f'API키 : ...{st.session_state.api_key[-5:]}')
+else:
+    st.warning("OpenAI API 키가 없습니다. 환경변수 OPENAI_API_KEY 또는 secrets.toml 을 설정하세요.")
 
 
 # 캐시 디렉토리 생성

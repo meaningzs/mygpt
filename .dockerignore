@@ -1,0 +1,7 @@
+.git
+.venv
+.devcontainer
+__pycache__
+.cache
+.streamlit/secrets.toml
+.settings/config.json

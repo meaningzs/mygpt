@@ -14,13 +14,14 @@ from langchain_teddynote.prompts import load_prompt
 st.title("📝나만의 GPT 만들기")
 st.subheader("(🧸테디노트/TeddyNote님 코드 기반)")
 
-config = settings.load_config()
-if "api_key" in config:
-    st.session_state.api_key = config["api_key"]
-    st.write(f'사용자 입력 API키 : {st.session_state.api_key[-5:]}')
-else : 
-    st.session_state.api_key = st.secrets["openai_api_key"]
-    st.write(f'API키 : {st.secrets["openai_api_key"][-5:]}')
+st.session_state.api_key = settings.resolve_api_key()
+if st.session_state.api_key:
+    st.write(f'API키 : ...{st.session_state.api_key[-5:]}')
+else:
+    st.warning(
+        "OpenAI API 키가 없습니다. 환경변수 OPENAI_API_KEY, "
+        ".streamlit/secrets.toml 의 openai_api_key, 또는 .settings/config.json 의 api_key 중 하나를 설정하세요."
+    )
 main_text = st.empty()
 
 # api_key = st.text_input("🔑 새로운 OPENAI API Key", type="password")
@@ -94,7 +95,9 @@ print_messages()
 user_input = st.chat_input("궁금한 내용을 물어보세요!")
 
 # 만약에 사용자 입력이 들어오면...
-if user_input:
+if user_input and not st.session_state.api_key:
+    st.error("API 키가 설정되지 않아 답변할 수 없습니다.")
+elif user_input:
     # 사용자의 입력
     st.chat_message("user").write(user_input)
     # chain 을 생성

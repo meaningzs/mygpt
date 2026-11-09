@@ -1,6 +1,21 @@
 import os
+import sys
+import types
 import streamlit as st
 import settings
+
+# 호환성: langchain 1.x 에서 langchain.schema 가 제거되었지만
+# langchain_teddynote 의 HWPLoader 는 여전히 langchain.schema / langchain.document_loaders.base 를 import 한다.
+try:
+    import langchain.schema  # noqa: F401
+    import langchain.document_loaders.base  # noqa: F401
+except ImportError:
+    from langchain_core.document_loaders import BaseLoader as _BaseLoader
+    from langchain_core.documents import Document as _Document
+
+    sys.modules["langchain.schema"] = types.SimpleNamespace(Document=_Document)
+    sys.modules["langchain.document_loaders"] = types.SimpleNamespace()
+    sys.modules["langchain.document_loaders.base"] = types.SimpleNamespace(BaseLoader=_BaseLoader)
 
 from langchain_core.messages.chat import ChatMessage
 from langchain_core.output_parsers import StrOutputParser
@@ -16,13 +31,11 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 
 # API KEY 정보로드
-config = settings.load_config()
-if "api_key" in config:
-    st.session_state.api_key = config["api_key"]
-    st.write(f'사용자 입력 API키 : {st.session_state.api_key[-5:]}')
-else : 
-    st.session_state.api_key = st.secrets["openai_api_key"]
-    st.write(f'API키 : {st.secrets["openai_api_key"][-5:]}')
+st.session_state.api_key = settings.resolve_api_key()
+if st.session_state.api_key:
+    st.write(f'API키 : ...{st.session_state.api_key[-5:]}')
+else:
+    st.warning("OpenAI API 키가 없습니다. 환경변수 OPENAI_API_KEY 또는 secrets.toml 을 설정하세요.")
 
 # 캐시 디렉토리 생성
 if not os.path.exists(".cache"):
